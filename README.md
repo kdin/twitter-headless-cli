@@ -9,7 +9,16 @@ A CLI tool to browse Twitter in headless mode and retrieve timeline tweets.
 git clone https://github.com/kdin/twitter-headless-cli.git
 cd twitter-headless-cli
 
-# Install with uv
+# Create a virtual environment with uv
+uv venv
+
+# Activate the virtual environment
+# On Linux/macOS:
+source .venv/bin/activate
+# On Windows:
+# .venv\Scripts\activate
+
+# Install the package with uv
 uv pip install -e .
 
 # Install Playwright browsers
