@@ -12,6 +12,11 @@ from playwright.sync_api import sync_playwright, Browser, BrowserContext, Page, 
 
 AUTH_FILE = Path("auth.json")
 
+# Timeout constants (in milliseconds)
+LONG_TIMEOUT = 30000  # 30 seconds
+MEDIUM_TIMEOUT = 15000  # 15 seconds
+SHORT_TIMEOUT = 10000  # 10 seconds
+
 
 def get_credentials() -> tuple[str, str]:
     """Get Twitter credentials from environment variables."""
@@ -43,20 +48,20 @@ def login_to_twitter(page: Page, username: str, password: str) -> bool:
     """Login to Twitter and return success status."""
     try:
         click.echo("Logging in to Twitter...")
-        page.goto("https://twitter.com/i/flow/login", wait_until="networkidle", timeout=30000)
+        page.goto("https://twitter.com/i/flow/login", wait_until="networkidle", timeout=LONG_TIMEOUT)
         
         # Wait for username input and fill it
-        page.wait_for_selector('input[autocomplete="username"]', timeout=10000)
+        page.wait_for_selector('input[autocomplete="username"]', timeout=SHORT_TIMEOUT)
         page.fill('input[autocomplete="username"]', username)
         page.click('text="Next"')
         
         # Wait for password input and fill it
-        page.wait_for_selector('input[name="password"]', timeout=10000)
+        page.wait_for_selector('input[name="password"]', timeout=SHORT_TIMEOUT)
         page.fill('input[name="password"]', password)
         page.click('text="Log in"')
         
         # Wait for navigation to complete
-        page.wait_for_url("https://twitter.com/home", timeout=30000)
+        page.wait_for_url("https://twitter.com/home", timeout=LONG_TIMEOUT)
         click.echo("Successfully logged in to Twitter")
         return True
         
@@ -72,10 +77,10 @@ def get_timeline_tweets(page: Page, username: str) -> List[str]:
     """Fetch timeline tweets from a user's profile."""
     try:
         click.echo(f"Fetching timeline for @{username}...")
-        page.goto(f"https://twitter.com/{username}", wait_until="networkidle", timeout=30000)
+        page.goto(f"https://twitter.com/{username}", wait_until="networkidle", timeout=LONG_TIMEOUT)
         
         # Wait for tweets to load
-        page.wait_for_selector('article[data-testid="tweet"]', timeout=10000)
+        page.wait_for_selector('article[data-testid="tweet"]', timeout=SHORT_TIMEOUT)
         
         # Extract tweet text
         tweets = []
@@ -135,8 +140,8 @@ def get_timeline(username: str):
             else:
                 # Verify the session is still valid by checking if we're logged in
                 try:
-                    page.goto("https://twitter.com/home", wait_until="networkidle", timeout=15000)
-                except:
+                    page.goto("https://twitter.com/home", wait_until="networkidle", timeout=MEDIUM_TIMEOUT)
+                except (PlaywrightTimeoutError, Exception):
                     # Session expired, login again
                     click.echo("Session expired, logging in again...")
                     if not login_to_twitter(page, twitter_username, twitter_password):
