@@ -1,5 +1,7 @@
 """Twitter CLI - Main application logic."""
 
+from __future__ import annotations
+
 import os
 import sys
 import json
@@ -141,8 +143,8 @@ def get_timeline(username: str):
                 # Verify the session is still valid by checking if we're logged in
                 try:
                     page.goto("https://twitter.com/home", wait_until="networkidle", timeout=MEDIUM_TIMEOUT)
-                except (PlaywrightTimeoutError, Exception):
-                    # Session expired, login again
+                except (PlaywrightTimeoutError, Exception) as e:
+                    # Session expired or network error, login again
                     click.echo("Session expired, logging in again...")
                     if not login_to_twitter(page, twitter_username, twitter_password):
                         click.echo("Error: Authentication failed", err=True)
